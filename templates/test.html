@@ -1,0 +1,49 @@
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+
+<script type=text/javascript>
+	//function findDay()
+//{
+//var eID = document.getElementById("daysCombo");
+//var dayVal = eID.options[eID.selectedIndex].value;
+//var daytxt = eID.options[eID.selectedIndex].text;
+//alert("Selected Item  " +  daytxt + ", Value " + dayVal);
+//}
+  $(function() {
+    $('a#calculate').bind('click', function() {
+      $.('/dataheading', {
+        a: $('input[name="a"]').val(),
+        b: $('input[name="b"]').val()
+      }, function(data) {
+        $("#result").text(data.result);
+      });
+      return false;
+    });
+  });
+</script>
+<h1>jQuery Example</h1>
+<p><input type=text size=5 name=a> +
+   <input type=text size=5 name=b> =
+   <span id=result>?</span>
+<p><a href=# id=calculate>calculate server side</a>
+
+
+
+</script>
+</head>
+<body>
+<select id="daysCombo">
+<option value="1">Sunday</option>
+<option value="2" selected="selected">Monday</option>
+<option value="3">Tuesday</option>
+<option value="4">Wednesday</option>
+<option value="5">Thursday</option>
+<option value="6">Friday</option>
+<option value="7">Saturday</option>
+</select>
+<br><br>
+	<button onclick="findDay()">Get Selected Day</button>
+</body>
+</html>

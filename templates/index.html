@@ -1,0 +1,193 @@
+<!DOCTYPE HTML>
+<html xmlns:padding="http://www.w3.org/1999/xhtml">
+	<head>
+	<title>Harsh Patel</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <style>
+            label{
+                min-width: 30px;
+                margin-right: 10px;
+                margin-left: 10px;
+                font-weight: bold;
+            }
+            h1{
+                justify-content: center;
+                font-size: 16px;
+                text-align: center;
+            }
+            table{
+                border:black 1px solid;
+                border-collapse: collapse;
+            }
+
+            .search_bar{
+                border: 2px red solid;
+                display:flex;
+                justify-content: center;
+            }
+            th{ padding:5px;
+                font-size: 14px;
+                border:black 1px solid;
+                border-collapse: collapse;
+            }
+            td{
+                border:black 1px solid;
+                font-size: 14px;
+                padding:5px;
+                margin: 0px;
+                text-align: center;
+            }
+        </style>
+	</head>
+	<body>
+
+
+    <div class="heading"><h1>Job Vacancy Details</h1></div>
+    <div class="search_bar">
+        <form name="search_form">
+            <select name="geo_location">
+            </select>
+
+            <select name="database">
+
+                <option value="mongodb">MongoDB</option>
+
+                <option value="mysql">MySQL</option>
+            </select>
+
+            <select name="view_style">
+
+                <option value="tabular">Tabular</option>
+
+                <option value="list">List</option>
+            </select>
+        </form>
+        <input type="button" id="submitbtn" value="submit">
+        <label  name="textbar_transmit" value=""></label>
+        <label  name="textbar_query" value=""></label>
+
+    </div>
+
+    <div id="result">
+        <table id="data_table">
+
+        </table>
+    </div>
+
+        <script type="text/javascript">
+                $(document).ready(function(){
+                    $.getJSON('/data_heading', {
+				            data: "",
+				        },
+                        function(data) {
+
+                            //console.log("all locations are"+ data);
+                            for(var i=0;i<data.length;i++)
+                            {
+                                $('select[name="geo_location"]').append($('<option>', {
+                                    value: data[i],
+                                    text: data[i]
+                                }));
+                            }
+				    });
+                });
+
+
+                $("#submitbtn").click(function(){
+                    $('#data_table').html("");
+
+                    if(($('select[name="database"]').val())=="mongodb") {
+
+                        var initial_time_m = new Date().getTime();
+                        $.getJSON('/all_data_mongo', {
+                                    data: $('select[name="geo_location"]').val(),
+                                },
+                                function (data) {
+                                    //console.log(data[0]);
+                                    var final_time_m=new Date().getTime();
+                                    var fetch_time_mongo=final_time_m - initial_time_m;
+                                    $('label[name="textbar_transmit"]').text('Js access time: '+((fetch_time_mongo% (1000*60))/1000)+' seconds');
+                                    $('label[name="textbar_query"]').text(  'Query access time: '+data[1]+' seconds');
+                                    put_data_mongo(data);
+                                });
+                    }
+
+
+                    else{
+                        var initial_time_s = new Date().getTime();
+                        $.getJSON('/all_data_sql', {
+                                    data: $('select[name="geo_location"]').val(),
+                                },
+                        function (data) {
+                            var final_time_s=new Date().getTime();
+                            var fetch_time_sql = final_time_s - initial_time_s;
+                            $('label[name="textbar_transmit"]').text("Js access time: "+(( fetch_time_sql% (1000*60))/1000)+' seconds');
+                            $('label[name="textbar_query"]').text( "Query access time: "+data[2]+' seconds');
+                            put_data_sql(data);
+
+                        });
+                    }
+                });
+
+
+                function put_data_sql(data){
+                    if(($('select[name="view_style"]').val())=="tabular")
+                    {
+                        var obj = JSON.parse(JSON.stringify(data[0]));
+                        var headings = data[1];
+                        var string = "<tr>";
+
+                        for (var i = 0; i < headings.length; i++) {
+                            string += '<th>' + (headings[i]) + '</th>';
+                        }
+                        string += "</tr><br>";
+
+                        for (var j = 0; j < obj.length; j++) {
+                            string += '<tr>';
+                            for (var k = 0; k < headings.length; k++) {
+                                string += '<td>' + obj[j][k] + '</td>';
+                            }
+                            string += '</tr>';
+
+                        }
+                        $('#data_table').append(string);
+                    }
+                    else{
+                        var obj = JSON.parse(JSON.stringify(data[0]));
+                        $('#data_table').html(JSON.stringify(obj)+"<br>");
+                    }
+                }
+                function put_data_mongo(data){
+                    if(($('select[name="view_style"]').val())=="tabular")
+                    {
+                        var obj = JSON.parse(data[0]);
+                        const headings = Object.keys(obj[0]);
+                        var string2 = "<tr>";
+
+                        for (var i = 0; i < headings.length; i++) {
+                            string2 += '<th>' + (headings[i]) + '</th>';
+                        }
+                        string2 += "</tr><br>";
+
+
+                        for (var j = 0; j < obj.length; j++) {
+                            string2 += '<tr>';
+                            for (var k = 0; k < Object.keys(obj[j]).length; k++) {
+                                string2 += '<td>' + obj[j][headings[k]] + '</td>';
+                            }
+                            string2 += '</tr>';
+
+                        }
+
+                        $('#data_table').append(string2);
+                    }
+                    else{
+                        var obj = JSON.parse(data[0]);
+                        $('#data_table').html(JSON.stringify(obj)+"<br>");
+                    }
+
+                }
+    </script>
+    </body>
+</html>
+
